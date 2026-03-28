@@ -19,7 +19,7 @@ RUN DEBIAN_FRONTEND=noninteractive DEBCONF_FRONTEND=noninteractive \
 RUN apt-get -y update \
  && DEBIAN_FRONTEND=noninteractive DEBCONF_FRONTEND=noninteractive apt-get -y install \
       git vim-tiny openssh-client curl wget jq ca-certificates apt-transport-https \
-      wireguard wireguard-tools unzip bzip2
+      wireguard wireguard-tools unzip bzip2 sudo
 RUN update-ca-certificates
 
 # https://googlechromelabs.github.io/chrome-for-testing/
