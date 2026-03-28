@@ -78,63 +78,81 @@ RUN mise activate --shims \
  && gem install json \
  && gem install rexml
 
+# run bundle with a copy of k8s-testing Gemfiles
+COPY Gemfile /root/Gemfile
+COPY Gemfile.lock /root/Gemfile.lock
+RUN bundle install --gemfile=/root/Gemfile --lockfile=/root/Gemfile.lock
+
+# prep root-bin
+RUN mkdir /root/bin
+
 # install docker
 RUN wget --no-verbose 'https://download.docker.com/linux/static/stable/x86_64/docker-25.0.5.tgz' \
  && tar -zxf docker-25.0.5.tgz \
  && chmod u+x docker/* \
  && mv docker/* /usr/local/bin/. \
- && rm -f docker-25.0.5.tgz
-RUN /usr/local/bin/docker --version
+ && rm -f docker-25.0.5.tgz \
+ && ln -s /usr/local/bin/docker /root/bin/docker
+RUN /root/bin/docker --version
 
 # https://github.com/regclient/regclient
 ENV REGCTL_VERSION=0.11.1
 # install regctl
 RUN wget --no-verbose "https://github.com/regclient/regclient/releases/download/v${REGCTL_VERSION}/regctl-linux-amd64" \
   && mv regctl-linux-amd64 /usr/local/bin/regctl \
-  && chmod u+x /usr/local/bin/regctl
+  && chmod u+x /usr/local/bin/regctl \
+  && ln -s /usr/local/bin/regctl /root/bin/regctl
 
 # install regsync
 RUN wget --no-verbose "https://github.com/regclient/regclient/releases/download/v${REGCTL_VERSION}/regsync-linux-amd64" \
   && mv regsync-linux-amd64 /usr/local/bin/regsync \
-  && chmod u+x /usr/local/bin/regsync
+  && chmod u+x /usr/local/bin/regsync \
+  && ln -s /usr/local/bin/regsync /root/bin/regsync
 
 # install regbot
 RUN wget --no-verbose "https://github.com/regclient/regclient/releases/download/v${REGCTL_VERSION}/regbot-linux-amd64" \
   && mv regbot-linux-amd64 /usr/local/bin/regbot \
-  && chmod u+x /usr/local/bin/regbot
+  && chmod u+x /usr/local/bin/regbot \
+  && ln -s /usr/local/bin/regbot /root/bin/regbot
 
 # install mc
 RUN wget --no-verbose 'https://dl.minio.io/client/mc/release/linux-amd64/mc' \
-&& mv mc /usr/local/bin/mc \
- && chmod u+x /usr/local/bin/mc \
- && mc ls || true
+  && mv mc /usr/local/bin/mc \
+  && chmod u+x /usr/local/bin/mc \
+  && ln -s /usr/local/bin/mc /root/bin/mc \
+  && mc ls || true
 
 # install sops: https://github.com/getsops/sops
 ENV SOPS_VERSION=3.11.0
 RUN wget --no-verbose "https://github.com/getsops/sops/releases/download/v${SOPS_VERSION}/sops-v${SOPS_VERSION}.linux.amd64" \
   && mv "sops-v${SOPS_VERSION}.linux.amd64" /usr/local/bin/sops \
-  && chmod u+x /usr/local/bin/sops
+  && chmod u+x /usr/local/bin/sops \
+  && ln -s /usr/local/bin/sops /root/bin/sops
 
 # install yj (yaml/json converter): https://github.com/sclevine/yj
 RUN wget --no-verbose 'https://github.com/sclevine/yj/releases/download/v5.1.0/yj-linux-amd64' \
   && mv yj-linux-amd64 /usr/local/bin/yj \
-  && chmod u+x /usr/local/bin/yj
+  && chmod u+x /usr/local/bin/yj \
+  && ln -s /usr/local/bin/yj /root/bin/yj
 
 # install yq (jq for yaml): https://github.com/mikefarah/yq
 RUN wget --no-verbose 'https://github.com/mikefarah/yq/releases/download/v4.49.2/yq_linux_amd64' \
   && mv yq_linux_amd64 /usr/local/bin/yq \
-  && chmod u+x /usr/local/bin/yq
+  && chmod u+x /usr/local/bin/yq \
+  && ln -s /usr/local/bin/yq /root/bin/yq
 
 # install kubectl
 RUN wget --no-verbose https://dl.k8s.io/release/v1.34.5/bin/linux/amd64/kubectl \
   && mv kubectl /usr/local/bin/kubectl \
-  && chmod u+x /usr/local/bin/kubectl
+  && chmod u+x /usr/local/bin/kubectl \
+  && ln -s /usr/local/bin/kubectl /root/bin/kubectl
 
 # install cnpg plugin: https://github.com/cloudnative-pg/cloudnative-pg/
 RUN wget --no-verbose 'https://github.com/cloudnative-pg/cloudnative-pg/releases/download/v1.27.1/kubectl-cnpg_1.27.1_linux_x86_64.tar.gz' \
   && tar -xzf kubectl-cnpg_1.27.1_linux_x86_64.tar.gz kubectl-cnpg \
   && mv kubectl-cnpg /usr/local/bin/kubectl-cnpg \
   && chmod u+x /usr/local/bin/kubectl-cnpg \
+  && ln -s /usr/local/bin/kubectl-cnpg /root/bin/kubectl-cnpg \
   && rm -f kubectl-cnpg_1.27.1_linux_x86_64.tar.gz
 
 # install taskfile
@@ -143,6 +161,7 @@ RUN wget --no-verbose 'https://github.com/go-task/task/releases/download/v3.49.1
  && mv completion/bash/task.bash /etc/bash_completion.d/task \
  && mv task /usr/local/bin/task \
  && chmod u+x /usr/local/bin/task \
+  && ln -s /usr/local/bin/task /root/bin/task \
  && rm -rf completion LICENSE README.md task_linux_amd64.tar.gz
 
 # install plato
@@ -150,6 +169,7 @@ RUN wget --no-verbose 'https://github.com/JamesClonk/plato/releases/download/v1.
  && tar -xzf plato_1.2.0_linux_x86_64.tar.gz \
  && mv plato /usr/local/bin/plato \
  && chmod u+x /usr/local/bin/plato \
+  && ln -s /usr/local/bin/plato /root/bin/plato \
  && rm -rf LICENSE README.md plato_1.2.0_linux_x86_64.tar.gz
 
 # install hurl
@@ -158,32 +178,39 @@ RUN wget --no-verbose 'https://github.com/Orange-OpenSource/hurl/releases/downlo
  && mv hurl-6.1.1-x86_64-unknown-linux-gnu/bin/hurl /usr/local/bin/hurl \
  && mv hurl-6.1.1-x86_64-unknown-linux-gnu/bin/hurlfmt /usr/local/bin/hurlfmt \
  && chmod u+x /usr/local/bin/hurl \
+  && ln -s /usr/local/bin/hurl /root/bin/hurl \
  && chmod u+x /usr/local/bin/hurlfmt \
+  && ln -s /usr/local/bin/hurlfmt /root/bin/hurlfmt \
  && rm -rf hurl-6.1.1*
 
 # install kapp: https://github.com/carvel-dev/kapp
 RUN wget --no-verbose 'https://github.com/carvel-dev/kapp/releases/download/v0.65.0/kapp-linux-amd64' \
   && mv kapp-linux-amd64 /usr/local/bin/kapp \
+  && ln -s /usr/local/bin/kapp /root/bin/kapp \
   && chmod u+x /usr/local/bin/kapp
 
 # install ytt: https://github.com/carvel-dev/ytt/
 RUN wget --no-verbose 'https://github.com/carvel-dev/ytt/releases/download/v0.52.2/ytt-linux-amd64' \
   && mv ytt-linux-amd64 /usr/local/bin/ytt \
+  && ln -s /usr/local/bin/ytt /root/bin/ytt \
   && chmod u+x /usr/local/bin/ytt
 
 # install kbld: https://github.com/carvel-dev/kbld
 RUN wget --no-verbose 'https://github.com/carvel-dev/kbld/releases/download/v0.47.0/kbld-linux-amd64' \
   && mv kbld-linux-amd64 /usr/local/bin/kbld \
+  && ln -s /usr/local/bin/kbld /root/bin/kbld \
   && chmod u+x /usr/local/bin/kbld
 
 # install imgpkg: https://github.com/carvel-dev/imgpkg/
 RUN wget --no-verbose 'https://github.com/carvel-dev/imgpkg/releases/download/v0.47.0/imgpkg-linux-amd64' \
   && mv imgpkg-linux-amd64 /usr/local/bin/imgpkg \
+  && ln -s /usr/local/bin/imgpkg /root/bin/imgpkg \
   && chmod u+x /usr/local/bin/imgpkg
 
 # install vendir: https://github.com/carvel-dev/vendir/
 RUN wget --no-verbose 'https://github.com/carvel-dev/vendir/releases/download/v0.45.0/vendir-linux-amd64' \
   && mv vendir-linux-amd64 /usr/local/bin/vendir \
+  && ln -s /usr/local/bin/vendir /root/bin/vendir \
   && chmod u+x /usr/local/bin/vendir
 
 # install helm
@@ -192,6 +219,7 @@ RUN wget --no-verbose "https://get.helm.sh/helm-v${HELM_VERSION}-linux-amd64.tar
  && tar -xzf "helm-v${HELM_VERSION}-linux-amd64.tar.gz" \
  && mv linux-amd64/helm /usr/local/bin/helm \
  && chmod u+x /usr/local/bin/helm \
+  && ln -s /usr/local/bin/helm /root/bin/helm \
  && rm -f "helm-v${HELM_VERSION}-linux-amd64.tar.gz" \
  && rm -rf linux-amd64
 
@@ -201,6 +229,7 @@ RUN wget --no-verbose "https://github.com/FiloSottile/age/releases/download/v${A
   && tar -xzf "age-v${AGE_VERSION}-linux-amd64.tar.gz" \
   && mv age/age age/age-keygen /usr/local/bin/ \
   && chmod u+x /usr/local/bin/age \
+  && ln -s /usr/local/bin/age /root/bin/age \
   && chmod u+x /usr/local/bin/age-keygen \
   && rm -rf age*
 
