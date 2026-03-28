@@ -20,7 +20,7 @@ RUN apt-get -y update \
  && DEBIAN_FRONTEND=noninteractive DEBCONF_FRONTEND=noninteractive apt-get -y install \
       git vim-tiny openssh-client curl wget jq ca-certificates apt-transport-https \
       wireguard wireguard-tools unzip bzip2 sudo net-tools traceroute apache2-utils \
-      iputils-arping iputils-clockdiff iputils-ping iputils-tracepath iproute2
+      iputils-arping iputils-clockdiff iputils-ping iputils-tracepath iproute2 dnsutils
 RUN update-ca-certificates
 
 # https://googlechromelabs.github.io/chrome-for-testing/
