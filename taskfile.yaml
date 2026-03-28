@@ -1,0 +1,19 @@
+---
+version: '3'
+set: [errexit, nounset, pipefail]
+
+tasks:
+  default:
+    desc: "List all tasks"
+    cmds:
+    - task -l
+
+  build:
+    desc: "Build the image"
+    cmds:
+    - docker build -t jamesclonk/k8s-container:latest .
+
+  clean:
+    desc: "Cleans up local docker images and volumes"
+    cmds:
+    - docker system prune --volumes -a
